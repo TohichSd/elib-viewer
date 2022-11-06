@@ -1,4 +1,5 @@
 const path = require('path')
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 
 module.exports = {
     entry: {
@@ -22,5 +23,8 @@ module.exports = {
         liveReload: true,
         watchFiles: ['public/**/*', './src/style/**/*']
     },
-    devtool: 'inline-source-map'
+    devtool: 'inline-source-map',
+    plugins: [
+        new NodePolyfillPlugin()
+    ]
 }

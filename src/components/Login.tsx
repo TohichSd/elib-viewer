@@ -1,6 +1,7 @@
 import * as React from 'react'
-import { Header } from './Common'
-import * as http from 'http'
+import LoadingPlaceholder from './common/LoadingPlaceholder'
+import Library from '../helpers/Library'
+
 
 interface IProps {
     callbackLogin
@@ -9,12 +10,14 @@ interface IProps {
 interface IState {
     username: string
     password: string
+    error: string
+    loading: boolean
 }
 
 export default class Login extends React.Component<IProps, IState> {
     constructor(props) {
         super(props)
-        this.state = { username: '', password: '' }
+        this.state = { username: '', password: '', error: undefined, loading: false }
 
         this.updateUsername = this.updateUsername.bind(this)
         this.updatePassword = this.updatePassword.bind(this)
@@ -33,39 +36,47 @@ export default class Login extends React.Component<IProps, IState> {
         })
     }
 
+
     private async onLoginClick() {
-        const data = {
-            username: this.state.username,
-            password: this.state.password,
-            language: 'ru_UN',
-            action: 'login'
+        if (this.state.loading) return
+        this.setState({ loading: true })
+
+        try {
+            if (!await Library.login(this.state.username, this.state.password))
+                return this.setState({
+                    error: 'Не удалось войти в библиотеку. Возможно вы ввели неверный логин или пароль.'
+                })
+
+            this.props.callbackLogin()
+        } catch (e) {
+            console.error(e)
+            this.setState({
+                error: 'Произошла непредвиденная ошибка :('
+            })
+        } finally {
+            this.setState({
+                password: '',
+                loading: false
+            })
         }
-
-        const urlEncodedData = Object.keys(data)
-            .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k])).join('&')
-
-        const res = await fetch('http://localhost:3000/http://elib.mpei.ru/login.php', {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/x-www-form-urlencoded;charset=UTF-8',
-            },
-            body: urlEncodedData
-        })
-
-        console.log(await res.json())
     }
 
     render() {
         return (
             <div className='container'>
-                <Header />
                 <div className='form-login'>
                     <h2>Войдите в библиотеку</h2>
+                    {this.state.error &&
+                        <div className='error login-error'>
+                            <p>{this.state.error}</p>
+                        </div>
+                    }
                     <input value={this.state.username} type='text' placeholder='Введите логин'
                            onChange={this.updateUsername} />
                     <input value={this.state.password} type='password' placeholder='Введите пароль'
                            onChange={this.updatePassword} />
-                    <button onClick={this.onLoginClick}>Войти</button>
+                    <button disabled={this.state.loading} onClick={this.onLoginClick}>{this.state.loading ?
+                        <LoadingPlaceholder /> : 'Войти'}</button>
                 </div>
             </div>
         )

@@ -1,7 +1,15 @@
+@import "util/loading-placeholder.styl"
+
 inputColor = #ff5640
 inputColor1 = #ff1818
 
+
 .form-login
+  loading-placeholder(white)
+
+  .lds-ellipsis div
+    top -15px
+
   display flex
   flex-direction column
   width 350px
@@ -28,4 +36,7 @@ inputColor1 = #ff1818
     
     &:hover
       background-color inputColor1
+      
+    &:disabled
+      cursor not-allowed
     

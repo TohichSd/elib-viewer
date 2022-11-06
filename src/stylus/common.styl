@@ -1,32 +1,51 @@
-inputColor = #ff5640
+primaryColor = #ff5640
 
 html
   height 95%
 
+  body
+    overflow scroll
+
   body, #root
-    height 100%
+    min-height 100%
+
+main
+  display flex
+  flex-direction column
+  align-items center
 
 .header
-  display inline-block
-  text-align left
+  display inline-flex
+  flex-direction column
+  align-items center
   margin-left auto
   margin-right auto
   font-family "Segoe UI"
 
-  > p
-    display inline
-    margin-bottom 0
-    margin-left 3px
-    color #ff1818
-    font-weight bold
+  .title
+    text-align left
 
-  > h1
-    font-size 50px
-    margin-top 0
-    line-height 30px
-    
+    > p
+      display inline
+      margin-bottom 0
+      margin-left 3px
+      color #ff1818
+      font-weight bold
+
+    > h1
+      font-size 50px
+      margin-top 0
+      line-height 30px
+
+  .user-real-name
+    color primaryColor
+    font-weight bold
+  
+    p
+      margin-top 0
+
 .container
-  height 100%
+  min-height 100%
   display flex
   flex-direction column
   background-color #ffffff
@@ -34,8 +53,16 @@ html
   text-align center
 
 input
-  border-bottom 1px solid inputColor
-  border-top 1px solid inputColor
-  border-left 1px solid inputColor
-  border-right 1px solid inputColor
+  border-bottom 1px solid primaryColor
+  border-top 1px solid primaryColor
+  border-left 1px solid primaryColor
+  border-right 1px solid primaryColor
   outline none
+
+.error {
+  font-family: 'Roboto', sans-serif;
+  font-weight bold
+  font-size: 17px
+  text-align center
+  color #ff0000
+}
