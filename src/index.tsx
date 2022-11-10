@@ -22,9 +22,9 @@ interface IState {
     page: 'search' | 'list' | 'view'
     loggedIn: boolean
     checkedLogin: boolean
+    fullScreen: boolean
     query?: string
     bookID?: number
-
 }
 
 class App extends React.Component<any, IState> {
@@ -34,13 +34,16 @@ class App extends React.Component<any, IState> {
             page: cookies.get('page') || 'search',
             loggedIn: false,
             checkedLogin: false,
+            fullScreen: false,
             query: cookies.get('query') || undefined,
             bookID: cookies.get('bookID') || undefined
         }
         this.callbackSearch = this.callbackSearch.bind(this)
+        this.callbackSearchID = this.callbackSearchID.bind(this)
         this.callbackLogin = this.callbackLogin.bind(this)
         this.checkLogin = this.checkLogin.bind(this)
         this.backButtonCallback = this.backButtonCallback.bind(this)
+        this.fullScreenCallback = this.fullScreenCallback.bind(this)
     }
 
     private async checkLogin() {
@@ -64,6 +67,20 @@ class App extends React.Component<any, IState> {
         })
     }
 
+    private callbackSearchID(id: number) {
+        cookies.set('page', 'view')
+        cookies.set('bookID', id)
+        this.setState({
+            page: 'view',
+            bookID: id
+        })
+    }
+
+    /**
+     * @deprecated
+     * @param query
+     * @private
+     */
     private callbackSearch(query: string) {
         if (query) {
             const parsedQuery = parseInt(query)
@@ -90,6 +107,10 @@ class App extends React.Component<any, IState> {
         this.setState({ page: 'search' })
     }
 
+    private fullScreenCallback() {
+        this.setState({ fullScreen: !this.state.fullScreen })
+    }
+
     componentDidMount() {
         this.checkLogin()
     }
@@ -99,15 +120,18 @@ class App extends React.Component<any, IState> {
         if (this.state.checkedLogin) {
             if (this.state.loggedIn) {
                 if (this.state.page === 'list') main = <BooksList query={this.state.query} />
-                else if (this.state.page === 'search') main = <Search cbSearch={this.callbackSearch} />
-                else if (this.state.page === 'view') main = <ViewPage bookID={this.state.bookID} />
+                else if (this.state.page === 'search') main = <Search cbSearchID={this.callbackSearchID} />
+                else if (this.state.page === 'view') main =
+                    <ViewPage bookID={this.state.bookID} fullscreenCallback={this.fullScreenCallback} />
             } else main = <Login callbackLogin={this.callbackLogin} />
         } else main = <p>Загрузка</p>
 
         return (
             <main>
-                <Header loggedIn={this.state.loggedIn}
-                        backButtonCallback={this.state.page != 'search' ? this.backButtonCallback : undefined} />
+                {(!this.state.fullScreen || this.state.page != 'view') &&
+                    <Header loggedIn={this.state.loggedIn}
+                            backButtonCallback={this.state.page != 'search' ? this.backButtonCallback : undefined} />
+                }
                 {main}
             </main>
         )

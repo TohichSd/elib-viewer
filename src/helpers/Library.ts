@@ -1,5 +1,6 @@
 import config from '../../config.json'
 import Cookies from 'universal-cookie'
+import { parse } from 'node-html-parser'
 
 const cookies = new Cookies()
 const proxyUrl = new URL(config.proxy)
@@ -68,5 +69,18 @@ export default class Library {
             }
         })
         return bookPageResponse.blob()
+    }
+    
+    public static async isBookAvailable(id: number): Promise<boolean> {
+        const response = await fetch(proxyUrl.href + 'view.php?fDocumentId=' + id, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'cookie': document.cookie
+            }
+        })
+        const parsed = parse(await response.text())
+        const error = parsed.querySelector('.ktError')
+        return !error
     }
 }

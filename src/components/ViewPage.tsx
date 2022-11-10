@@ -2,11 +2,13 @@ import * as React from 'react'
 import LoadingPlaceholder from './common/LoadingPlaceholder'
 import Library from '../helpers/Library'
 import Cookies from 'universal-cookie'
+import config from '../../config.json'
 
 const cookies = new Cookies()
 
 interface IProps {
     bookID: number
+    fullscreenCallback: () => void
 }
 
 interface IState {
@@ -15,6 +17,7 @@ interface IState {
     imageBlob: string
     loaded: boolean
     imageHeight: number
+    cachedPages: object
 }
 
 export default class ViewPage extends React.Component<IProps, IState> {
@@ -25,7 +28,8 @@ export default class ViewPage extends React.Component<IProps, IState> {
             inputPage: '1',
             imageBlob: undefined,
             loaded: false,
-            imageHeight: parseInt(cookies.get('image-height')) || 800
+            imageHeight: parseInt(cookies.get('image-height')) || 800,
+            cachedPages: {}
         }
 
         this.loadPage = this.loadPage.bind(this)
@@ -35,11 +39,34 @@ export default class ViewPage extends React.Component<IProps, IState> {
         this.previousPage = this.previousPage.bind(this)
         this.setPage = this.setPage.bind(this)
         this.onKeyDown = this.onKeyDown.bind(this)
+        this.cachePage = this.cachePage.bind(this)
+    }
+
+    // Кэшировать страницу если она ещё не кэширована
+    private async cachePage(page: number): Promise<string> {
+        if (!this.state.cachedPages[page]) {
+            const blob = await Library.getBookPage(this.props.bookID, page)
+            return URL.createObjectURL(blob)
+        }
     }
 
     private async loadPage(page: number) {
-        const blob = await Library.getBookPage(this.props.bookID, page)
-        this.setState({ page, inputPage: (page + 1).toString(), imageBlob: URL.createObjectURL(blob) })
+        // При загрузке каждой страницы кэшируется следующая и предыдущая
+        await this.cachePage(page + 1)
+        await this.cachePage(page + 2)
+        if (page > 0)
+            await this.cachePage(page - 1)
+        if (page > 1)
+            await this.cachePage(page - 2)
+        await this.cachePage(page)
+        
+        const cachedCount = config.cachePages
+        
+        for(let i=0; i<10; i++) {
+            
+        }
+
+        this.setState({ page, inputPage: (page + 1).toString(), imageBlob: this.state.cachedPages[page] })
     }
 
     private zoomIn() {
@@ -92,7 +119,7 @@ export default class ViewPage extends React.Component<IProps, IState> {
             .then(() => {
                 this.setState({ loaded: true })
             })
-        
+
         document.addEventListener('keydown', e => {
             if (e.key == 'ArrowLeft')
                 this.previousPage()
@@ -111,6 +138,20 @@ export default class ViewPage extends React.Component<IProps, IState> {
                 .then(() => {
                     this.setState({ loaded: true })
                 })
+
+        // Проверка [и инвалидация] кэша
+        // Если число кэшированных страниц превышает допустимое, удалить одну кэшированную страницу с начала или с конца
+        const cachedCount = Object.keys(this.state.cachedPages).length
+        if (cachedCount > config.cachePages) {
+            let element
+            if (this.state.page > prevState.page) {
+                element = Object.keys(this.state.cachedPages)[0]
+            } else if (this.state.page < prevState.page) {
+                element = Object.keys(this.state.cachedPages)[cachedCount]
+            }
+            URL.revokeObjectURL(this.state.cachedPages[element])
+            delete this.state.cachedPages[element]
+        }
     }
 
     render() {
@@ -120,6 +161,8 @@ export default class ViewPage extends React.Component<IProps, IState> {
                     {this.state.imageBlob &&
                         <div className='controls'>
                             <div>
+                                <button className='fullscreen' onClick={this.props.fullscreenCallback}>Во весь экран
+                                </button>
                                 <button className='arrow arrow-left' onClick={this.previousPage}>Предыдущая</button>
                                 <button className='arrow arrow-right' onClick={this.nextPage}>Следующая</button>
                                 <button className='size-minus' onClick={this.zoomOut}>-</button>

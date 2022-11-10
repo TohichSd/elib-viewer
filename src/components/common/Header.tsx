@@ -40,7 +40,7 @@ export default class Header extends React.Component<IProps, IState> {
                     <p>MPEI</p>
                     <h1>ELIB VIEWER</h1>
                 </div>
-                {this.props.loggedIn &&
+                {(this.props.loggedIn && this.state.userRealName) &&
                     <div className='user-real-name'>
                         <p>{'Вы вошли как ' + this.state.userRealName}</p>
                     </div>

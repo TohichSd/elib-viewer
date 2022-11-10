@@ -1,14 +1,16 @@
 import * as React from 'react'
 import Library from '../helpers/Library'
+import LoadingPlaceholder from './common/LoadingPlaceholder'
 
 interface IProps {
-    cbSearch: (query: string) => void
+    cbSearchID: (id: number) => void
 }
 
 interface IState {
     inputValue: string
     userRealName: string
-    image?: any
+    error: string
+    searching: boolean
 }
 
 export default class Search extends React.Component<IProps, IState> {
@@ -17,14 +19,25 @@ export default class Search extends React.Component<IProps, IState> {
         this.state = {
             inputValue: '',
             userRealName: undefined,
+            error: undefined,
+            searching: false
         }
+
+        this.search = this.search.bind(this)
     }
-    
-    componentDidMount() {
-        Library.getBookPage(8829, 0)
-            .then(image => {
-                this.setState({ image })
-            })
+
+    private async search() {
+        this.setState({ searching: true })
+        const query = this.state.inputValue
+        if (!query) return
+        
+        const parsedQuery = parseInt(query)
+        if (parsedQuery.toString() == query) {
+            if (!await Library.isBookAvailable(parsedQuery))
+                return this.setState({ error: 'Эта книга не существует или недоступна', searching: false })
+            
+            this.props.cbSearchID(parsedQuery)
+        } else return this.setState({ error: 'Кажется это не ID', searching: false })
     }
 
     render() {
@@ -36,8 +49,13 @@ export default class Search extends React.Component<IProps, IState> {
                                value={this.state.inputValue}
                                onChange={e => this.setState({ inputValue: e.target.value })}
                         />
-                        <button onClick={() => this.props.cbSearch(this.state.inputValue)}>ПОИСК</button>
+                        <button onClick={this.search}>{this.state.searching ? <LoadingPlaceholder /> : 'ПОИСК'}</button>
                     </div>
+                    {this.state.error &&
+                        <div className='error login-error'>
+                            <p>{this.state.error}</p>
+                        </div>
+                    }
                 </div>
             </div>
         )
