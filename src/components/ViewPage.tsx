@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React from 'react'
 import LoadingPlaceholder from './common/LoadingPlaceholder'
 import Library from '../helpers/Library'
 import Cookies from 'universal-cookie'
@@ -40,33 +40,46 @@ export default class ViewPage extends React.Component<IProps, IState> {
         this.setPage = this.setPage.bind(this)
         this.onKeyDown = this.onKeyDown.bind(this)
         this.cachePage = this.cachePage.bind(this)
+
+        document.addEventListener('keyup', e => {
+            if (e.key == 'ArrowLeft')
+                this.previousPage()
+            else if (e.key == 'ArrowRight')
+                this.nextPage()
+            else if (e.key == '=' || e.key == '+')
+                this.zoomIn()
+            else if (e.key == '-')
+                this.zoomOut()
+        })
     }
 
     // Кэшировать страницу если она ещё не кэширована
-    private async cachePage(page: number): Promise<string> {
+    private cachePage(page: number): void {
+        console.log(page, this.state.page)
         if (!this.state.cachedPages[page]) {
-            const blob = await Library.getBookPage(this.props.bookID, page)
-            return URL.createObjectURL(blob)
+            this.state.cachedPages[page] = Library.getBookPage(this.props.bookID, page)
+                .then(URL.createObjectURL)
         }
+        console.log(page, this.state.page)
     }
 
     private async loadPage(page: number) {
-        // При загрузке каждой страницы кэшируется следующая и предыдущая
-        await this.cachePage(page + 1)
-        await this.cachePage(page + 2)
-        if (page > 0)
-            await this.cachePage(page - 1)
-        if (page > 1)
-            await this.cachePage(page - 2)
-        await this.cachePage(page)
-        
-        const cachedCount = config.cachePages
-        
-        for(let i=0; i<10; i++) {
-            
+        let cachedPage: string
+        if (this.state.cachedPages[page]) {
+            if (typeof (this.state.cachedPages[page].then) == 'function') {
+                cachedPage = await this.state.cachedPages[page]
+            } else cachedPage = this.state.cachedPages[page]
+        } else {
+            this.cachePage(page)
+            cachedPage = await this.state.cachedPages[page]
         }
 
-        this.setState({ page, inputPage: (page + 1).toString(), imageBlob: this.state.cachedPages[page] })
+        this.setState({ page, inputPage: (page + 1).toString(), imageBlob: cachedPage })
+
+        // При загрузке каждой страницы кэшируется следующая и предыдущая
+        this.cachePage(page + 1)
+        if (page > 0)
+            this.cachePage(page - 1)
     }
 
     private zoomIn() {
@@ -119,20 +132,10 @@ export default class ViewPage extends React.Component<IProps, IState> {
             .then(() => {
                 this.setState({ loaded: true })
             })
-
-        document.addEventListener('keydown', e => {
-            if (e.key == 'ArrowLeft')
-                this.previousPage()
-            else if (e.key == 'ArrowRight')
-                this.nextPage()
-            else if (e.key == '=' || e.key == '+')
-                this.zoomIn()
-            else if (e.key == '-')
-                this.zoomOut()
-        })
     }
 
     componentDidUpdate(prevProps: Readonly<IProps>, prevState: Readonly<IState>) {
+        console.log(this.state.page, prevState.page)
         if (this.state.page != prevState.page)
             this.loadPage(this.state.page)
                 .then(() => {
