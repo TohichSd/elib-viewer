@@ -102,13 +102,19 @@ export default class Library {
         const text = await response.text()
         const parsed = parse(text)
         // Нахождение количества страниц изх скрипта по регулярному выражению
-        const pagesCount =  text.match(/'PageCount':'[0-9]+'/m)[0]
-            .split(':')[1]
-            .replace(/'/, '')
+        const pagesCountStr = text.match(/'PageCount':'[0-9]+'/m)
+        let pagesCount: number
+        if (pagesCountStr) {
+            pagesCount = parseInt(pagesCountStr[0]
+                .split(':')[1]
+                .replace(/'/, ''))
+        } else pagesCount = 0
+        
+        const content = parsed.querySelector('#content').innerText
         return {
-            available: !parsed.querySelector('.ktError'),
+            available: !(content.includes('Доступ Запрещен') || content.includes('Ошибка')),
             name: parsed.querySelector('title').innerText,
-            pagesCount: parseInt(pagesCount || '0')
+            pagesCount
         }
     }
 
