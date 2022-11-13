@@ -5,6 +5,12 @@ import { parse } from 'node-html-parser'
 const cookies = new Cookies()
 const proxyUrl = new URL(config.proxy)
 
+type BookInfo = {
+    available: boolean
+    name: string
+    pagesCount: number
+}
+
 export default class Library {
     public static async getDashboard() {
         return fetch(proxyUrl.href + 'dashboard.php', {
@@ -82,6 +88,28 @@ export default class Library {
         if (bookPageResponse.headers.get('content-type') == 'image/jpeg')
             return bookPageResponse.blob()
         else throw new Error('Cannot get page')
+    }
+
+    public static async getBookInfo(id: number): Promise<BookInfo> {
+        const url = proxyUrl.href + '/action.php?kt_path_info=ktcore.SecViewPlugin.actions.document&fDocumentId=' + id
+        const response = await fetch(url, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'cookie': document.cookie
+            }
+        })
+        const text = await response.text()
+        const parsed = parse(text)
+        // Нахождение количества страниц изх скрипта по регулярному выражению
+        const pagesCount =  text.match(/'PageCount':'[0-9]+'/m)[0]
+            .split(':')[1]
+            .replace(/'/, '')
+        return {
+            available: !parsed.querySelector('.ktError'),
+            name: parsed.querySelector('title').innerText,
+            pagesCount: parseInt(pagesCount || '0')
+        }
     }
 
     public static async isBookAvailable(id: number): Promise<boolean> {

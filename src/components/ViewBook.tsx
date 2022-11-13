@@ -24,6 +24,7 @@ interface IState {
     imageBlob: string
     loaded: boolean
     imageHeight: number
+    pagesCount: number
     // Хранит промисы, возвращающие кэшированные страницы
     cachedPages: { [page: number]: Promise<string> }
     error?: string
@@ -38,6 +39,7 @@ export default class ViewBook extends React.Component<IProps, IState> {
             imageBlob: undefined,
             loaded: false,
             imageHeight: parseInt(cookies.get('image-height')) || document.body.scrollHeight * 0.8,
+            pagesCount: 0,
             cachedPages: {}
         }
 
@@ -75,10 +77,9 @@ export default class ViewBook extends React.Component<IProps, IState> {
     }
 
     private async loadPage(page: number) {
-        let cachedPage: string
         if (!this.state.cachedPages[page])
             this.cachePage(page)
-        cachedPage = await this.state.cachedPages[page]
+        const cachedPage = await this.state.cachedPages[page]
 
         this.setState({ page, inputPage: (page + 1).toString(), imageBlob: cachedPage })
     }
@@ -98,7 +99,7 @@ export default class ViewBook extends React.Component<IProps, IState> {
     }
 
     private nextPage() {
-        if (this.state.loaded)
+        if (this.state.loaded && this.state.page < this.state.pagesCount-1)
             this.setState({
                 page: this.state.page + 1,
                 loaded: false
@@ -106,7 +107,7 @@ export default class ViewBook extends React.Component<IProps, IState> {
     }
 
     private previousPage() {
-        if (this.state.page > 0 && this.state.loaded)
+        if (this.state.loaded && this.state.page > 0)
             this.setState({
                 page: this.state.page - 1,
                 loaded: false
@@ -114,7 +115,9 @@ export default class ViewBook extends React.Component<IProps, IState> {
     }
 
     private setPage(event) {
-        if (parseInt(event.target.value) > 0 || event.target.value == '')
+        if ((parseInt(event.target.value) > 0
+            && parseInt(event.target.value) < this.state.pagesCount)
+            || event.target.value == '')
             this.setState({
                 inputPage: event.target.value
             })
@@ -133,6 +136,12 @@ export default class ViewBook extends React.Component<IProps, IState> {
     }
 
     componentDidMount() {
+        // Количество страниц
+        Library.getBookInfo(this.props.bookID)
+            .then(info => {
+                this.setState({ pagesCount: info.pagesCount })
+            })
+
         this.loadPage(this.state.page)
             .then(() => {
                 this.setState({ loaded: true })
@@ -204,7 +213,7 @@ export default class ViewBook extends React.Component<IProps, IState> {
                                 <p>Страница </p>
                                 <input type='number' value={this.state.inputPage} onChange={this.setPage}
                                        onKeyDown={this.onKeyDown} />
-                                <p> из 99</p>
+                                <p> из {this.state.pagesCount}</p>
                             </div>
                         </div>
                     }

@@ -1,6 +1,6 @@
 {
   "name": "react-app",
-  "version": "1.0.0",
+  "version": "0.2.1",
   "main": "index.js",
   "type": "module",
   "license": "MIT",
@@ -12,7 +12,10 @@
     "@svgr/webpack": "^6.5.1",
     "@types/react": "^18.0.24",
     "@types/react-dom": "^18.0.8",
+    "@typescript-eslint/eslint-plugin": "^5.42.1",
+    "@typescript-eslint/parser": "^5.42.1",
     "css-loader": "^6.7.1",
+    "eslint": "^8.27.0",
     "eslint-plugin-react": "^7.31.10",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "style-loader": "^3.3.1",

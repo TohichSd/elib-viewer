@@ -33,16 +33,17 @@ export default class Search extends React.Component<IProps, IState> {
         const query = this.state.inputValue
         if (!query) return
 
-        const parsedQuery = parseInt(query)
-        if (parsedQuery.toString() == query) {
-            if (!await Library.isBookAvailable(parsedQuery)) {
+        const bookID = parseInt(query)
+        if (bookID.toString() == query) {
+            const bookInfo = await Library.getBookInfo(bookID)
+            if (!bookInfo.available) {
                 this.setState({ searching: false })
                 Notify.failure('Эта книга не существует или недоступна', 
                     { position: 'center-top' })
                 return
             }
 
-            this.props.cbSearchID(parsedQuery)
+            this.props.cbSearchID(bookID)
         } else {
             this.setState({ searching: false })
             Notify.failure('Кажется это не ID', { position: 'center-top' })
