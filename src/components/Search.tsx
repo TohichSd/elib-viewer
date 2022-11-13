@@ -1,8 +1,10 @@
 import * as React from 'react'
 import Library from '../helpers/Library'
 import LoadingPlaceholder from './common/LoadingPlaceholder'
+import { Notify } from 'notiflix/build/notiflix-notify-aio'
 
 interface IProps {
+    context
     cbSearchID: (id: number) => void
 }
 
@@ -30,14 +32,22 @@ export default class Search extends React.Component<IProps, IState> {
         this.setState({ searching: true })
         const query = this.state.inputValue
         if (!query) return
-        
+
         const parsedQuery = parseInt(query)
         if (parsedQuery.toString() == query) {
-            if (!await Library.isBookAvailable(parsedQuery))
-                return this.setState({ error: 'Эта книга не существует или недоступна', searching: false })
-            
+            if (!await Library.isBookAvailable(parsedQuery)) {
+                this.setState({ searching: false })
+                Notify.failure('Эта книга не существует или недоступна', 
+                    { position: 'center-top' })
+                return
+            }
+
             this.props.cbSearchID(parsedQuery)
-        } else return this.setState({ error: 'Кажется это не ID', searching: false })
+        } else {
+            this.setState({ searching: false })
+            Notify.failure('Кажется это не ID', { position: 'center-top' })
+            return
+        }
     }
 
     render() {

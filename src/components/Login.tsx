@@ -1,10 +1,14 @@
 import * as React from 'react'
 import LoadingPlaceholder from './common/LoadingPlaceholder'
 import Library from '../helpers/Library'
+import Cookies from 'universal-cookie'
+import { Notify } from 'notiflix/build/notiflix-notify-aio'
 
+const cookies = new Cookies()
 
 interface IProps {
-    callbackLogin
+    context
+    callbackLogin: () => any
 }
 
 interface IState {
@@ -18,7 +22,7 @@ export default class Login extends React.Component<IProps, IState> {
     constructor(props) {
         super(props)
         this.state = { username: '', password: '', error: undefined, loading: false }
-
+        
         this.updateUsername = this.updateUsername.bind(this)
         this.updatePassword = this.updatePassword.bind(this)
         this.onLoginClick = this.onLoginClick.bind(this)
@@ -42,17 +46,17 @@ export default class Login extends React.Component<IProps, IState> {
         this.setState({ loading: true })
 
         try {
-            if (!await Library.login(this.state.username, this.state.password))
-                return this.setState({
-                    error: 'Не удалось войти в библиотеку. Возможно вы ввели неверный логин или пароль.'
-                })
+            if (!await Library.login(this.state.username, this.state.password)) {
+                Notify.failure('Не удалось войти в библиотеку. Возможно вы ввели неверный логин или пароль.',
+                    { position: 'center-top' })
+                return
+            }
 
             this.props.callbackLogin()
         } catch (e) {
             console.error(e)
-            this.setState({
-                error: 'Произошла непредвиденная ошибка :('
-            })
+            Notify.failure('Произошла непредвиденная ошибка :(',
+                { position: 'center-top' })
         } finally {
             this.setState({
                 password: '',
@@ -61,11 +65,14 @@ export default class Login extends React.Component<IProps, IState> {
         }
     }
 
+    componentDidMount() {
+        cookies.remove('cachedRealName')
+    }
+    
     render() {
         return (
             <div className='container'>
                 <div className='form-login'>
-                    <h2>Войдите в библиотеку</h2>
                     {this.state.error &&
                         <div className='error login-error'>
                             <p>{this.state.error}</p>

@@ -1,68 +1,91 @@
 @import "util/loading-placeholder.styl"
 
-mainColor = #c3c3c3
+controlsLightColor = #c3c3c3
+backgroundLightColor = #e7d8c8
+backgroundDarkColor = #262626
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+  -webkit-appearance: none
 }
 
-input[type=number] {
-  -moz-appearance: textfield;
-}
+input[type=number]
+  -moz-appearance: textfield
 
 .page-container
-  loading-placeholder(#ff5640)
-  
-  .lds-ellipsis div
-    top 1%
-
-  .lighten
-    opacity: 0.3
-
-  .page
-    background-color white
-    
-
   //border 2px solid black
   border-radius 10px
   margin 0 auto
   padding 0 0 5px 0
 
+  // Для тёмной темы
+
+  &.dark
+    .page
+      border-color #6c6c6c
+      background-color backgroundDarkColor
+
+    .controls
+      background-color #3b3b3b
+
+      input
+        background-color #6c6c6c
+
+      p, input
+        color white
+
+    img
+      z-index 0
+      -webkit-filter: invert(1)
+      filter invert(1)
+
+  &.fullscreen
+    width 100%
+    min-height 100vh
+    
+    .page
+      border none
+
+  loading-placeholder(#ff5640)
+
+  .lds-ellipsis div
+    top 1%
+
+  .loading
+    opacity: 0.3
+
+  .page
+    border 1px solid controlsLightColor
+    background-color backgroundLightColor
 
   .controls
-    background-color mainColor
+    z-index 1
+    background-color controlsLightColor
     display flex
     flex-direction: column
     justify-content center
-    align-items center
     //border-radius 5px 5px 0 0
     position sticky
     top 0
 
-    *
-      font-family: 'Roboto', sans-serif
-
     > div
-      display inline
+      display inline-flex
+      flex-direction row
+      justify-content center
+      align-items stretch
       margin 2px 0
-      //width 30%
+
+      *
+        margin 0 2px
 
       > p, input
         display inline
 
       > p
         color: #2d2d2d
+        margin-top 0
+        margin-bottom 0
 
       > input
         border none
-
-
-    input[type=number]
-      width: 20%
-
-  .page
-    border 1px solid mainColor
-    background-color white
-    
+        width 30px

@@ -1,7 +1,8 @@
 import * as React from 'react'
 
 interface IProps {
-    query: string
+    query: string,
+    context: object
 }
 
 export default class BooksList extends React.Component<IProps, any> {

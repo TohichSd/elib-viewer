@@ -3,40 +3,40 @@
 inputColor = #ff5640
 inputColor1 = #ff1818
 
-
-.form-login
-  loading-placeholder(white)
-
-  .lds-ellipsis div
-    top -15px
-
-  display flex
-  flex-direction column
-  width 350px
-  margin 0 auto
+.login
+  .form-login
+    loading-placeholder(white)
   
-  h2
-    margin-top 0
-    font-family "Roboto Thin"
+    .lds-ellipsis div
+      top -15px
   
-  input, button
-    border-radius 5px
-  
-  input
-    border-width 3px
-    font-size: 20px
-    margin 5px 0
-
-  button
-    font-size: 25px
-    background-color inputColor
-    border none
-    color white
-    cursor pointer
+    display flex
+    flex-direction column
+    width 350px
+    margin 0 auto
     
-    &:hover
-      background-color inputColor1
+    h2
+      margin-top 0
+      font-family "Roboto Thin"
+    
+    input, button
+      border-radius 5px
+    
+    input
+      border-width 3px
+      font-size: 20px
+      margin 5px 0
+  
+    button
+      font-size: 25px
+      background-color inputColor
+      border none
+      color white
+      cursor pointer
       
-    &:disabled
-      cursor not-allowed
+      &:hover
+        background-color inputColor1
+        
+      &:disabled
+        cursor not-allowed
     

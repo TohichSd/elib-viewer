@@ -1,28 +1,56 @@
 primaryColor = #ff5640
+backgroundLightColor = #e7d8c8
+backgroundDarkColor = #262626
+
+*
+  font-family: 'Roboto', sans-serif
 
 html
-  height 95%
+  height 100%
+  min-height 100%
 
   body
-    overflow scroll
-    background-color #fff3e6
+    overflow-y scroll
     margin 0
 
-  body, #root
-    min-height 100%
+  body, #root, main
+    min-height 100vh
 
 main
   display flex
   flex-direction column
-  align-items center
+  justify-content center
+
+  &.light
+    background-color backgroundLightColor
+
+    svg
+      fill black
+
+  &.dark
+    background-color backgroundDarkColor
+
+    .loading
+      color white
+    
+    svg
+      fill white
+
+  > div
+    display flex
+    flex-direction column
+    align-items center
+    margin auto 0
 
 .header
+  margin-top 20px
   display inline-flex
   flex-direction column
   align-items center
   margin-left auto
   margin-right auto
   font-family "Segoe UI"
+  margin-bottom 25px
 
   .title
     text-align left
@@ -37,21 +65,45 @@ main
     > h1
       font-size 50px
       margin-top 0
-      line-height 30px
+      margin-bottom 10px
+      line-height 35px
 
-  .user-real-name
-    color primaryColor
-    font-weight bold
-  
-    p
-      margin-top 0
+  .controls
+    display flex
+    flex-direction row
+    justify-content center
+
+    > *
+      margin-left 5px
+      margin-right 5px
+
+    .logout
+      border 1px solid red
+    
+    .user-real-name
+      color primaryColor
+      font-weight bold
+      display flex
+      flex-direction row
+      justify-content center
+
+      p, svg
+        margin auto 0
+
+      p
+        font-size 13px
+
+
+.dark
+  .header
+    color white
 
 .container
-  min-height 100%
   display flex
   flex-direction column
   justify-content center
   text-align center
+  width 100%
 
 input
   border-bottom 1px solid primaryColor
@@ -60,10 +112,59 @@ input
   border-right 1px solid primaryColor
   outline none
 
-.error {
+button
+  cursor pointer
+
+button.button-secondary
+  background-color #939393
+  border-radius 3px
+  border none
+
+.light
+  button.button-secondary
+    color black
+
+    svg
+      fill black
+
+    &:hover
+      background-color black
+      color white
+
+      svg
+        fill white
+
+.dark
+  button.button-secondary
+    color white
+
+    svg
+      fill white
+
+    &:hover
+      background-color white
+      color black
+
+      svg
+        fill black
+
+.warning
+  color #ff7500
+  margin 0
+  font-size 15px
+        
+.error
   font-family: 'Roboto', sans-serif;
   font-weight bold
   font-size: 17px
   text-align center
   color #ff0000
-}
+  
+  
+.notification
+  position: absolute
+  top: 60px
+  margin: 0 auto
+  
+  &.error
+    background-color rgba(255,0,5,0.41)

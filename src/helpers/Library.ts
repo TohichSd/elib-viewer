@@ -15,7 +15,7 @@ export default class Library {
             }
         })
     }
-    
+
     public static async login(username, password): Promise<boolean> {
         const data = {
             username: username,
@@ -26,7 +26,7 @@ export default class Library {
 
         const urlEncodedData = Object.keys(data)
             .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k])).join('&')
-        
+
 
         // Этот запрос нужен для получения куки из библиотеки
         await fetch(proxyUrl.href + 'login.php', {
@@ -58,8 +58,19 @@ export default class Library {
         const text = await dashboard.text()
         return !text.includes('Вход')
     }
-    
-    public static async getBookPage(id: number, page: number): Promise<Blob>{
+
+    public static async logout() {
+        await fetch(proxyUrl.href + '/presentation/logout.php', {
+            method: 'GET',
+            credentials: 'include',
+            redirect: 'follow',
+            headers: {
+                'cookie': document.cookie
+            }
+        })
+    }
+
+    public static async getBookPage(id: number, page: number): Promise<Blob> {
         const url = proxyUrl.href + `plugins/SecView/getDoc.php?id=${id}&page=${page}&type=small/fast`
         const bookPageResponse = await fetch(url, {
             method: 'GET',
@@ -68,9 +79,11 @@ export default class Library {
                 'cookie': document.cookie
             }
         })
-        return bookPageResponse.blob()
+        if (bookPageResponse.headers.get('content-type') == 'image/jpeg')
+            return bookPageResponse.blob()
+        else throw new Error('Cannot get page')
     }
-    
+
     public static async isBookAvailable(id: number): Promise<boolean> {
         const response = await fetch(proxyUrl.href + 'view.php?fDocumentId=' + id, {
             method: 'GET',

@@ -1,10 +1,19 @@
 import * as React from 'react'
 import Library from '../../helpers/Library'
 import { parse } from 'node-html-parser'
+import Cookies from 'universal-cookie'
+import LightModeSvg from '../../assets/light-mode-20px.svg'
+import DarkModeSvg from '../../assets/dark-mode-20px.svg'
+import PersonSvg from '../../assets/person-24px.svg'
+import LogoutSvg from '../../assets/logout-20px.svg'
+
+const cookies = new Cookies()
 
 interface IProps {
-    loggedIn: boolean
-    backButtonCallback: () => void
+    context
+    backButtonCallback: () => any
+    darkModeCallback: () => any
+    logoutCallback: () => any
 }
 
 interface IState {
@@ -18,17 +27,26 @@ export default class Header extends React.Component<IProps, IState> {
     }
 
     private async setUserRealName() {
-        const dashboard = await Library.getDashboard()
-        const parsed = parse(await dashboard.text())
-        this.setState({ userRealName: parsed.querySelector('span.ktLoggedInUser').innerText })
+        const cachedName = cookies.get('cachedRealName')
+        if (cachedName)
+            this.setState({ userRealName: cachedName })
+        else {
+            const dashboard = await Library.getDashboard()
+            const parsed = parse(await dashboard.text())
+            const name = parsed.querySelector('span.ktLoggedInUser').innerText
+            this.setState({ userRealName: name })
+            if (cachedName != name)
+                cookies.set('cachedRealName', name)
+        }
     }
 
     componentDidMount() {
-        this.setUserRealName()
+        if (this.props.context.loggedIn)
+            this.setUserRealName()
     }
-    
+
     componentDidUpdate(prevProps: Readonly<IProps>, prevState: Readonly<IState>) {
-        if (prevProps.loggedIn !== this.props.loggedIn) {
+        if (prevProps.context.loggedIn !== this.props.context.loggedIn) {
             this.setUserRealName()
         }
     }
@@ -40,13 +58,25 @@ export default class Header extends React.Component<IProps, IState> {
                     <p>MPEI</p>
                     <h1>ELIB VIEWER</h1>
                 </div>
-                {(this.props.loggedIn && this.state.userRealName) &&
+                <div className='controls'>
                     <div className='user-real-name'>
-                        <p>{'Вы вошли как ' + this.state.userRealName}</p>
+                        <PersonSvg />
+                        <p>{this.state.userRealName && this.props.context.loggedIn ?
+                            this.state.userRealName : 'Войдите чтобы продолжить'}</p>
                     </div>
-                }
+                    <button className='theme-switch button-secondary'
+                            title={`Переключить на ${this.props.context.darkMode ? 'светлую' : 'тёмную'} тему`}
+                            onClick={this.props.darkModeCallback}>{this.props.context.darkMode ?
+                        <LightModeSvg /> : <DarkModeSvg />}
+                    </button>
+                    {this.props.context.loggedIn &&
+                        <button className='button-secondary logout' onClick={this.props.logoutCallback}>
+                            <LogoutSvg />
+                        </button>
+                    }
+                </div>
                 {this.props.backButtonCallback &&
-                    <button onClick={this.props.backButtonCallback}>Назад</button>
+                    <button className='button-secondary' onClick={this.props.backButtonCallback}>Назад</button>
                 }
             </div>
         )

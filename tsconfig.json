@@ -6,7 +6,8 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "jsx": "react"
+    "jsx": "react",
+    "typeRoots": ["./node_modules/@types", "./src/types/custom.d.ts"]
   },
   "exclude": [
     "node_modules"
