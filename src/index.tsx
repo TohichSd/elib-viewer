@@ -1,10 +1,8 @@
 import * as React from 'react'
 import { createRoot } from 'react-dom/client'
-import Cookies from 'universal-cookie'
+import { parse } from 'node-html-parser'
 
-import Search from './components/Search'
-import BooksList from './components/BooksList'
-import Login from './components/Login'
+import Cookies from 'universal-cookie'
 
 import './stylus/common.styl'
 import './stylus/search.styl'
@@ -12,11 +10,14 @@ import './stylus/login.styl'
 import './stylus/view-page.styl'
 import 'react-notifications/lib/notifications.css'
 
-import ViewBook from './components/ViewBook'
-import Header from './components/common/Header'
 import Library from './helpers/Library'
-import { parse } from 'node-html-parser'
 
+const ViewBook = React.lazy(() => import('./components/ViewBook'))
+const Header = React.lazy(() => import('./components/common/Header'))
+const Search = React.lazy(() => import('./components/Search'))
+const BooksList = React.lazy(() => import('./components/BooksList'))
+const Login = React.lazy(() => import('./components/Login'))
+const Footer = React.lazy(() => import('./components/common/Footer'))
 
 const cookies = new Cookies()
 
@@ -176,6 +177,9 @@ class App extends React.Component<any, IState> {
                     }
                     {main}
                 </div>
+                {/*{(!this.state.fullScreen || this.state.page != 'view') &&*/}
+                {/*    // <Footer />*/}
+                {/*}*/}
             </main>
         )
     }

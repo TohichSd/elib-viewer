@@ -5,7 +5,6 @@ module.exports = {
     entry: {
         index: './src/index.tsx'
     },
-    mode: 'development',
     module: {
         rules: [
             { test: /\.tsx?$/, loader: 'ts-loader', exclude: /node_modules/ },
@@ -18,14 +17,15 @@ module.exports = {
         extensions: ['.js', '.jsx', '.ts', '.tsx']
     },
     output: {
-        path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js'
+        path: path.resolve(__dirname, 'public/dist'),
+        filename: '[name].bundle.js'
     },
-    devServer: {
-        liveReload: true,
-        watchFiles: ['public/**/*', './src/style/**/*']
+    optimization: {
+        chunkIds: 'natural',
+        splitChunks: {
+            chunks: 'all',
+        }
     },
-    devtool: 'inline-source-map',
     plugins: [
         new NodePolyfillPlugin()
     ]
