@@ -13,13 +13,15 @@ type BookInfo = {
 
 export default class Library {
     public static async getDashboard() {
-        return fetch(proxyUrl.href + 'dashboard.php', {
+        const response = await fetch(proxyUrl.href + 'dashboard.php', {
             method: 'GET',
             credentials: 'include',
             headers: {
                 'cookie': document.cookie
             }
         })
+        if (!response.ok) throw new Error('Page not available')
+        return response
     }
 
     public static async login(username, password): Promise<boolean> {
@@ -46,6 +48,8 @@ export default class Library {
             body: urlEncodedData
         })
 
+        const testCookie = cookies.get('CookieTestCookie')
+        if (!testCookie) throw new Error('Cannot get CookieTestCookie')
         const urlCheckCookie = proxyUrl.href +
             `login.php?cookieVerify=${cookies.get('CookieTestCookie')}&action=checkCookie`
 
@@ -54,9 +58,6 @@ export default class Library {
             method: 'GET',
             credentials: 'include',
             redirect: 'manual',
-            headers: {
-                'cookie': document.cookie
-            }
         })
 
         const dashboard = await Library.getDashboard()
@@ -66,14 +67,12 @@ export default class Library {
     }
 
     public static async logout() {
-        await fetch(proxyUrl.href + '/presentation/logout.php', {
+        const response = await fetch(proxyUrl.href + '/presentation/logout.php', {
             method: 'GET',
             credentials: 'include',
             redirect: 'follow',
-            headers: {
-                'cookie': document.cookie
-            }
         })
+        if (response.status != 200 && response.status != 301) throw new Error('Page not available')
     }
 
     public static async getBookPage(id: number, page: number): Promise<Blob> {
@@ -81,10 +80,8 @@ export default class Library {
         const bookPageResponse = await fetch(url, {
             method: 'GET',
             credentials: 'include',
-            headers: {
-                'cookie': document.cookie
-            }
         })
+        if (bookPageResponse.status != 200) throw new Error('Page not available')
         if (bookPageResponse.headers.get('content-type') == 'image/jpeg')
             return bookPageResponse.blob()
         else throw new Error('Cannot get page')
@@ -95,13 +92,12 @@ export default class Library {
         const response = await fetch(url, {
             method: 'GET',
             credentials: 'include',
-            headers: {
-                'cookie': document.cookie
-            }
         })
+        if (!response.ok) throw new Error('Page not available')
         const text = await response.text()
         const parsed = parse(text)
-        // Нахождение количества страниц изх скрипта по регулярному выражению
+        
+        // Нахождение количества страниц из скрипта по регулярному выражению
         const pagesCountStr = text.match(/'PageCount':'[0-9]+'/m)
         let pagesCount: number
         if (pagesCountStr) {
@@ -109,25 +105,12 @@ export default class Library {
                 .split(':')[1]
                 .replace(/'/, ''))
         } else pagesCount = 0
-        
+
         const content = parsed.querySelector('#content').innerText
         return {
             available: !(content.includes('Доступ Запрещен') || content.includes('Ошибка')),
             name: parsed.querySelector('title').innerText,
             pagesCount
         }
-    }
-
-    public static async isBookAvailable(id: number): Promise<boolean> {
-        const response = await fetch(proxyUrl.href + 'view.php?fDocumentId=' + id, {
-            method: 'GET',
-            credentials: 'include',
-            headers: {
-                'cookie': document.cookie
-            }
-        })
-        const parsed = parse(await response.text())
-        const error = parsed.querySelector('.ktError')
-        return !error
     }
 }

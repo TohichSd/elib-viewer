@@ -11,9 +11,9 @@ const cookies = new Cookies()
 
 interface IProps {
     context
-    backButtonCallback: () => any
-    darkModeCallback: () => any
-    logoutCallback: () => any
+    backButtonCallback: () => void
+    darkModeCallback: () => void
+    logoutCallback: () => void
 }
 
 interface IState {
@@ -45,7 +45,7 @@ export default class Header extends React.Component<IProps, IState> {
             this.setUserRealName()
     }
 
-    componentDidUpdate(prevProps: Readonly<IProps>, prevState: Readonly<IState>) {
+    componentDidUpdate(prevProps: Readonly<IProps>) {
         if (prevProps.context.loggedIn !== this.props.context.loggedIn) {
             this.setUserRealName()
         }

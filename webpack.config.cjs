@@ -1,5 +1,7 @@
 const path = require('path')
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
+// const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
     entry: {
@@ -17,16 +19,38 @@ module.exports = {
         extensions: ['.js', '.jsx', '.ts', '.tsx']
     },
     output: {
-        path: path.resolve(__dirname, 'public/dist'),
-        filename: '[name].bundle.js'
+        path: path.resolve(__dirname, 'public', 'dist'),
+        filename: '[name].bundle.js',
+        clean: true
     },
     optimization: {
-        chunkIds: 'natural',
+        runtimeChunk: 'single',
+        concatenateModules: true,
+        minimize: true,
         splitChunks: {
+            maxSize: 244*1024,
             chunks: 'all',
+            maxInitialRequests: Infinity,
+            minSize: 0,
+            filename: 'vendor~[name].bundle.js',
+            cacheGroups: {
+                default: {
+                    minChunks: 2,
+                    reuseExistingChunk: true,
+                },
+                reactVendor: {
+                    test: /[\\/]node_modules[\\/](react|react-dom|react-router-dom)[\\/]/,
+                    chunks: 'all',
+                }
+            }
         }
     },
     plugins: [
-        new NodePolyfillPlugin()
+        new NodePolyfillPlugin(),
+        // new BundleAnalyzerPlugin(),
+        new HtmlWebpackPlugin({
+            title: 'Elib Viewer',
+            filename: path.resolve(__dirname, 'public', 'index.html'),
+        })
     ]
 }

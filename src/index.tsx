@@ -11,13 +11,13 @@ import './stylus/view-page.styl'
 import 'react-notifications/lib/notifications.css'
 
 import Library from './helpers/Library'
+import { Notify } from 'notiflix/build/notiflix-notify-aio'
 
 const ViewBook = React.lazy(() => import('./components/ViewBook'))
 const Header = React.lazy(() => import('./components/common/Header'))
 const Search = React.lazy(() => import('./components/Search'))
 const BooksList = React.lazy(() => import('./components/BooksList'))
 const Login = React.lazy(() => import('./components/Login'))
-const Footer = React.lazy(() => import('./components/common/Footer'))
 
 const cookies = new Cookies()
 
@@ -31,7 +31,7 @@ interface IState {
     bookID?: number
 }
 
-class App extends React.Component<any, IState> {
+class App extends React.Component<unknown, IState> {
     constructor(props) {
         super(props)
         this.state = {
@@ -55,11 +55,16 @@ class App extends React.Component<any, IState> {
 
     private async checkLogin() {
         if (cookies.get('PHPSESSID')) {
-            const dashboard = await Library.getDashboard()
-            const parsed = parse(await dashboard.text())
-            if (!parsed.querySelector('span.ktLoggedInUser').innerText.includes('Anonymous')) {
-                this.setState({ loggedIn: true, checkedLogin: true })
-                return
+            try {
+                const dashboard = await Library.getDashboard()
+                const parsed = parse(await dashboard.text())
+                if (!parsed.querySelector('span.ktLoggedInUser').innerText.includes('Anonymous')) {
+                    this.setState({ loggedIn: true, checkedLogin: true })
+                    return
+                }
+            }
+            catch (e) {
+                Notify.failure('Что-то пошло не так :(')
             }
         }
         this.setState({ loggedIn: false, checkedLogin: true })
@@ -175,7 +180,9 @@ class App extends React.Component<any, IState> {
                                 darkModeCallback={this.darkModeCallback}
                                 logoutCallback={this.logoutCallback} />
                     }
-                    {main}
+                    <React.Suspense fallback={<p className='loading'>Загрузка</p>}>
+                        {main}
+                    </React.Suspense>
                 </div>
                 {/*{(!this.state.fullScreen || this.state.page != 'view') &&*/}
                 {/*    // <Footer />*/}
@@ -185,5 +192,8 @@ class App extends React.Component<any, IState> {
     }
 }
 
-const root = createRoot(document.querySelector('#root'))
+const rootDiv = document.createElement('div')
+document.body.appendChild(rootDiv)
+
+const root = createRoot(rootDiv)
 root.render(<React.StrictMode> <App /> </React.StrictMode>)

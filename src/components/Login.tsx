@@ -8,7 +8,7 @@ const cookies = new Cookies()
 
 interface IProps {
     context
-    callbackLogin: () => any
+    callbackLogin: () => void
 }
 
 interface IState {
@@ -55,7 +55,7 @@ export default class Login extends React.Component<IProps, IState> {
             this.props.callbackLogin()
         } catch (e) {
             console.error(e)
-            Notify.failure('Произошла непредвиденная ошибка :(',
+            Notify.failure('Что-то пошло не так :(',
                 { position: 'center-top' })
         } finally {
             this.setState({
