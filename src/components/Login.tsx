@@ -67,6 +67,8 @@ export default class Login extends React.Component<IProps, IState> {
 
     componentDidMount() {
         cookies.remove('cachedRealName')
+        cookies.remove('PHPSESSID')
+        cookies.remove('CookieTestCookie')
     }
     
     render() {

@@ -30,14 +30,15 @@ export default class Header extends React.Component<IProps, IState> {
         const cachedName = cookies.get('cachedRealName')
         if (cachedName)
             this.setState({ userRealName: cachedName })
-        else {
+        else if (this.props.context.loggedIn) {
             const dashboard = await Library.getDashboard()
             const parsed = parse(await dashboard.text())
             const name = parsed.querySelector('span.ktLoggedInUser').innerText
             this.setState({ userRealName: name })
             if (cachedName != name)
                 cookies.set('cachedRealName', name)
-        }
+        } else cookies.remove('cachedRealName')
+
     }
 
     componentDidMount() {

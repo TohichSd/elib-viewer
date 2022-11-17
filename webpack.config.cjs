@@ -49,7 +49,7 @@ module.exports = {
         new NodePolyfillPlugin(),
         // new BundleAnalyzerPlugin(),
         new HtmlWebpackPlugin({
-            title: 'Elib Viewer',
+            title: 'ELib Viewer',
             filename: path.resolve(__dirname, 'public', 'index.html'),
         })
     ]

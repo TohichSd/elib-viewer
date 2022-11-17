@@ -109,16 +109,22 @@ footer
   display flex
   flex-direction column
   justify-content center
-  background-color primaryColor
   width 100%
-  padding 30px 0
-  position bottom
-  bottom 0
+  padding 10px 0
   
   > div
     display flex
     flex-direction row
     justify-content center
+    
+    a
+      margin 0 5px
+      font-size 15px
+      color primaryColor
+      text-decoration none
+      
+      &:hover
+        text-decoration underline
   
 input
   border-bottom 1px solid primaryColor
@@ -174,12 +180,3 @@ button.button-secondary
   font-size: 17px
   text-align center
   color #ff0000
-  
-  
-.notification
-  position: absolute
-  top: 60px
-  margin: 0 auto
-  
-  &.error
-    background-color rgba(255,0,5,0.41)

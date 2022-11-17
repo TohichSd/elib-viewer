@@ -18,6 +18,7 @@ const Header = React.lazy(() => import('./components/common/Header'))
 const Search = React.lazy(() => import('./components/Search'))
 const BooksList = React.lazy(() => import('./components/BooksList'))
 const Login = React.lazy(() => import('./components/Login'))
+const Footer = React.lazy(() => import('./components/common/Footer'))
 
 const cookies = new Cookies()
 
@@ -58,16 +59,13 @@ class App extends React.Component<unknown, IState> {
             try {
                 const dashboard = await Library.getDashboard()
                 const parsed = parse(await dashboard.text())
-                if (!parsed.querySelector('span.ktLoggedInUser').innerText.includes('Anonymous')) {
-                    this.setState({ loggedIn: true, checkedLogin: true })
-                    return
-                }
-            }
-            catch (e) {
+                if (!parsed.querySelector('span.ktLoggedInUser').innerText.includes('Anonymous'))
+                    return true
+            } catch (e) {
                 Notify.failure('Что-то пошло не так :(')
             }
         }
-        this.setState({ loggedIn: false, checkedLogin: true })
+        return false
     }
 
     private loginCallback() {
@@ -144,6 +142,14 @@ class App extends React.Component<unknown, IState> {
 
     componentDidMount() {
         this.checkLogin()
+            .then(isLoggedIn => {
+                if (isLoggedIn) this.setState({ loggedIn: true, checkedLogin: true })
+                else this.setState({ loggedIn: false, checkedLogin: true })
+            })
+    }
+
+    componentDidUpdate(/*prevProps: Readonly<unknown>, prevState: Readonly<IState>, snapshot?: any*/) {
+        if (this.state.page == 'view' && !this.state.bookID) this.setState({ page: 'search' })
     }
 
     render() {
@@ -174,19 +180,20 @@ class App extends React.Component<unknown, IState> {
         return (
             <main className={(this.state.darkMode ? 'dark' : 'light') + ' ' + pageName}>
                 <div>
-                    {(!this.state.fullScreen || this.state.page != 'view') &&
-                        <Header context={context}
-                                backButtonCallback={this.state.page != 'search' ? this.backButtonCallback : undefined}
-                                darkModeCallback={this.darkModeCallback}
-                                logoutCallback={this.logoutCallback} />
-                    }
                     <React.Suspense fallback={<p className='loading'>Загрузка</p>}>
+
+                        {(!this.state.fullScreen || this.state.page != 'view') &&
+                            <Header context={context}
+                                    backButtonCallback={this.state.page != 'search' ? this.backButtonCallback : undefined}
+                                    darkModeCallback={this.darkModeCallback}
+                                    logoutCallback={this.logoutCallback} />
+                        }
                         {main}
+                        {(!this.state.fullScreen || this.state.page != 'view') &&
+                            <Footer />
+                        }
                     </React.Suspense>
                 </div>
-                {/*{(!this.state.fullScreen || this.state.page != 'view') &&*/}
-                {/*    // <Footer />*/}
-                {/*}*/}
             </main>
         )
     }
