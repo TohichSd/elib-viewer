@@ -2,10 +2,10 @@ import * as React from 'react'
 import Library from '../../helpers/Library'
 import { parse } from 'node-html-parser'
 import Cookies from 'universal-cookie'
-import LightModeSvg from '../../assets/light-mode-20px.svg'
-import DarkModeSvg from '../../assets/dark-mode-20px.svg'
-import PersonSvg from '../../assets/person-24px.svg'
-import LogoutSvg from '../../assets/logout-20px.svg'
+import LightModeSvg from '../../static/assets/light-mode-20px.svg'
+import DarkModeSvg from '../../static/assets/dark-mode-20px.svg'
+import PersonSvg from '../../static/assets/person-24px.svg'
+import LogoutSvg from '../../static/assets/logout-20px.svg'
 
 const cookies = new Cookies()
 

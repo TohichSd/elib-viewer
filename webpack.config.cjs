@@ -2,6 +2,7 @@ const path = require('path')
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 // const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
     entry: {
@@ -51,6 +52,20 @@ module.exports = {
         new HtmlWebpackPlugin({
             title: 'ELib Viewer',
             filename: path.resolve(__dirname, 'public', 'index.html'),
+            // template: path.resolve(__dirname, 'src/static/views/index.ejs')
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: path.resolve(__dirname, 'src/static/favicon'),
+                    to: path.resolve(__dirname, 'public')
+                },
+                {
+                    from: path.resolve(__dirname, 'src/static/browser-config'),
+                    to: path.resolve(__dirname, 'public')
+                }
+            ]
+            
         })
     ]
 }

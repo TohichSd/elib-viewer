@@ -1,14 +1,27 @@
 import config from '../../config.json'
-import Cookies from 'universal-cookie'
 import { parse } from 'node-html-parser'
 
-const cookies = new Cookies()
 const proxyUrl = new URL(config.proxy)
 
 type BookInfo = {
     available: boolean
     name: string
     pagesCount: number
+}
+
+type LibraryErrorOptions = {
+    message?: string
+    code?: number
+}
+
+class LibraryError extends Error {
+    public code?: number
+
+    constructor(options: LibraryErrorOptions) {
+        super(options.message)
+        if (options.code)
+            this.code = options.code
+    }
 }
 
 export default class Library {
@@ -20,7 +33,7 @@ export default class Library {
                 'cookie': document.cookie
             }
         })
-        if (!response.ok) throw new Error('Page not available')
+        if (!response.ok) throw new LibraryError({ message: 'Cannot fetch page', code: response.status })
         return response
     }
 
@@ -40,7 +53,7 @@ export default class Library {
         await fetch(proxyUrl.href + 'login.php', {
             method: 'POST',
             credentials: 'include',
-            redirect: 'manual',
+            redirect: 'follow',
             mode: 'cors',
             headers: {
                 'content-type': 'application/x-www-form-urlencoded;charset=UTF-8'
@@ -48,9 +61,9 @@ export default class Library {
             body: urlEncodedData
         })
 
-        const testCookie = cookies.get('CookieTestCookie')
-        if (!testCookie) throw new Error('Cannot get CookieTestCookie')
-        const urlCheckCookie = proxyUrl.href +
+        // const testCookie = cookies.get('CookieTestCookie')
+        // if (!testCookie) throw new Error('Cannot get CookieTestCookie')
+        /*const urlCheckCookie = proxyUrl.href +
             `login.php?cookieVerify=${cookies.get('CookieTestCookie')}&action=checkCookie`
 
         // Запрос для подтверждения куки
@@ -58,7 +71,7 @@ export default class Library {
             method: 'GET',
             credentials: 'include',
             redirect: 'manual',
-        })
+        })*/
 
         const dashboard = await Library.getDashboard()
 
@@ -67,36 +80,39 @@ export default class Library {
     }
 
     public static async logout() {
-        const response = await fetch(proxyUrl.href + '/presentation/logout.php', {
+        const response = await fetch(proxyUrl.href + 'presentation/logout.php', {
             method: 'GET',
             credentials: 'include',
-            redirect: 'follow',
+            redirect: 'manual',
         })
-        if (response.status != 200 && response.status != 301) throw new Error('Page not available')
+        if (!response.ok) throw new LibraryError({ message: 'Cannot fetch page', code: response.status })
     }
 
     public static async getBookPage(id: number, page: number): Promise<Blob> {
         const url = proxyUrl.href + `plugins/SecView/getDoc.php?id=${id}&page=${page}&type=small/fast`
         const bookPageResponse = await fetch(url, {
             method: 'GET',
-            credentials: 'include',
+            credentials: 'include'
         })
-        if (bookPageResponse.status != 200) throw new Error('Page not available')
+        if (!bookPageResponse.ok) throw new LibraryError({
+            message: 'Cannot fetch page',
+            code: bookPageResponse.status
+        })
         if (bookPageResponse.headers.get('content-type') == 'image/jpeg')
             return bookPageResponse.blob()
-        else throw new Error('Cannot get page')
+        else throw new Error('Cannot get book page')
     }
 
     public static async getBookInfo(id: number): Promise<BookInfo> {
-        const url = proxyUrl.href + '/action.php?kt_path_info=ktcore.SecViewPlugin.actions.document&fDocumentId=' + id
+        const url = proxyUrl.href + 'action.php?kt_path_info=ktcore.SecViewPlugin.actions.document&fDocumentId=' + id
         const response = await fetch(url, {
             method: 'GET',
-            credentials: 'include',
+            credentials: 'include'
         })
-        if (!response.ok) throw new Error('Page not available')
+        if (!response.ok) throw new LibraryError({ message: 'Cannot fetch page', code: response.status })
         const text = await response.text()
         const parsed = parse(text)
-        
+
         // Нахождение количества страниц из скрипта по регулярному выражению
         const pagesCountStr = text.match(/'PageCount':'[0-9]+'/m)
         let pagesCount: number

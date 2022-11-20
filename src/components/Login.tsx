@@ -55,7 +55,11 @@ export default class Login extends React.Component<IProps, IState> {
             this.props.callbackLogin()
         } catch (e) {
             console.error(e)
-            Notify.failure('Что-то пошло не так :(',
+            let message
+            if (e.code == 499)
+                message = 'Запросы не проходят... Возможно ваш антивирус их блокирует'
+            else message = 'Что-то пошло не так :('
+            Notify.failure(message,
                 { position: 'center-top' })
         } finally {
             this.setState({
