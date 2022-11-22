@@ -44,6 +44,11 @@ class App extends React.Component<unknown, IState> {
             query: cookies.get('query') || undefined,
             bookID: cookies.get('bookID') || undefined
         }
+        
+        window.addEventListener('beforeunload', event => {
+            event.preventDefault()
+        })
+        
         this.searchCallback = this.searchCallback.bind(this)
         this.searchIDCallback = this.searchIDCallback.bind(this)
         this.loginCallback = this.loginCallback.bind(this)

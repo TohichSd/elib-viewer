@@ -9,6 +9,7 @@ import NextSvg from '../static/assets/next-20px.svg'
 import PreviousSvg from '../static/assets/previous-20px.svg'
 import FullscreenSvg from '../static/assets/fullscreen-20px.svg'
 import { Notify } from 'notiflix/build/notiflix-notify-aio'
+import { BrowserView, isMobile } from 'react-device-detect'
 
 const cookies = new Cookies()
 
@@ -23,7 +24,7 @@ interface IState {
     inputPage: string
     imageBlob: string
     loaded: boolean
-    imageHeight: number
+    imageWidth: number
     pagesCount: number
     // Хранит промисы, возвращающие кэшированные страницы
     cachedPages: { [page: number]: Promise<string> }
@@ -33,12 +34,15 @@ interface IState {
 export default class ViewBook extends React.Component<IProps, IState> {
     constructor(props: IProps) {
         super(props)
+        const defaultImageWidth = isMobile
+            ? document.body.scrollWidth * 0.95
+            : document.body.scrollWidth * 0.5
         this.state = {
             page: 0,
             inputPage: '1',
             imageBlob: undefined,
             loaded: false,
-            imageHeight: parseInt(cookies.get('image-height')) || document.body.scrollHeight * 0.8,
+            imageWidth: parseInt(cookies.get('image-width')) || defaultImageWidth,
             pagesCount: 0,
             cachedPages: {}
         }
@@ -85,21 +89,21 @@ export default class ViewBook extends React.Component<IProps, IState> {
     }
 
     private zoomIn() {
-        if (this.state.imageHeight <= 1500) {
-            cookies.set('image-height', this.state.imageHeight + 100)
-            this.setState({ imageHeight: this.state.imageHeight + 100 })
+        if (this.state.imageWidth <= 1500) {
+            cookies.set('image-height', this.state.imageWidth + 100)
+            this.setState({ imageWidth: this.state.imageWidth + 100 })
         }
     }
 
     private zoomOut() {
-        if (this.state.imageHeight >= 800) {
-            cookies.set('image-height', this.state.imageHeight - 100)
-            this.setState({ imageHeight: this.state.imageHeight - 100 })
+        if (this.state.imageWidth >= 800) {
+            cookies.set('image-height', this.state.imageWidth - 100)
+            this.setState({ imageWidth: this.state.imageWidth - 100 })
         }
     }
 
     private nextPage() {
-        if (this.state.loaded && this.state.page < this.state.pagesCount-1)
+        if (this.state.loaded && this.state.page < this.state.pagesCount - 1)
             this.setState({
                 page: this.state.page + 1,
                 loaded: false
@@ -116,7 +120,7 @@ export default class ViewBook extends React.Component<IProps, IState> {
 
     private setPage(event) {
         if ((parseInt(event.target.value) > 0
-            && parseInt(event.target.value) < this.state.pagesCount)
+                && parseInt(event.target.value) <= this.state.pagesCount)
             || event.target.value == '')
             this.setState({
                 inputPage: event.target.value
@@ -198,15 +202,24 @@ export default class ViewBook extends React.Component<IProps, IState> {
                         <div className='controls'>
                             <div>
                                 <button className='arrow arrow-left button-secondary'
-                                        onClick={this.previousPage}><PreviousSvg /></button>
+                                        onClick={this.previousPage}>
+                                    <PreviousSvg />
+                                </button>
                                 <button className='arrow arrow-right button-secondary'
-                                        onClick={this.nextPage}><NextSvg /></button>
-                                <button className='size-minus button-secondary' onClick={this.zoomOut}><ZoomOutSvg />
+                                        onClick={this.nextPage}>
+                                    <NextSvg />
                                 </button>
-                                <button className='size-plus button-secondary' onClick={this.zoomIn}><ZoomInSvg />
-                                </button>
+                                <BrowserView>
+                                    <button className='size-minus button-secondary' onClick={this.zoomOut}>
+                                        <ZoomOutSvg />
+                                    </button>
+                                    <button className='size-plus button-secondary' onClick={this.zoomIn}>
+                                        <ZoomInSvg />
+                                    </button>
+                                </BrowserView>
                                 <button className='fullscreen button-secondary'
-                                        onClick={this.toggleFullscreen}><FullscreenSvg />
+                                        onClick={this.toggleFullscreen}>
+                                    <FullscreenSvg />
                                 </button>
                             </div>
                             <div>
@@ -222,7 +235,7 @@ export default class ViewBook extends React.Component<IProps, IState> {
                             ? <img
                                 className={this.state.loaded ? '' : 'loading'}
                                 src={this.state.imageBlob}
-                                height={this.state.imageHeight + 'px'}
+                                width={this.state.imageWidth + 'px'}
                                 alt='Страница книги' />
                             : <LoadingPlaceholder />
                         }

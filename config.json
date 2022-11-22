@@ -1,4 +1,4 @@
 {
-  "proxy": "http://localhost:3000/",
+  "proxy": "https://armellobot.ru:3000/",
   "cachePages": 15
 }
