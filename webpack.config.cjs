@@ -20,7 +20,7 @@ module.exports = {
         extensions: ['.js', '.jsx', '.ts', '.tsx']
     },
     output: {
-        path: path.resolve(__dirname, 'public', 'dist'),
+        path: path.resolve(__dirname, 'dist'),
         filename: '[name].bundle.js',
         clean: true
     },
@@ -51,18 +51,18 @@ module.exports = {
         // new BundleAnalyzerPlugin(),
         new HtmlWebpackPlugin({
             title: 'ELib Viewer',
-            filename: path.resolve(__dirname, 'public', 'index.html'),
+            filename: path.resolve(__dirname, 'dist', 'index.html'),
             // template: path.resolve(__dirname, 'src/static/views/index.ejs')
         }),
         new CopyWebpackPlugin({
             patterns: [
                 {
                     from: path.resolve(__dirname, 'src/static/favicon'),
-                    to: path.resolve(__dirname, 'public')
+                    to: path.resolve(__dirname, 'dist')
                 },
                 {
                     from: path.resolve(__dirname, 'src/static/browser-config'),
-                    to: path.resolve(__dirname, 'public')
+                    to: path.resolve(__dirname, 'dist')
                 }
             ]
             

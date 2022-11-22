@@ -78,7 +78,11 @@ main
       margin-right 5px
 
     .logout
-      border 1px solid red
+      box-sizing border-box
+      -moz-box-sizing border-box
+      -webkit-box-sizing border-box
+      &:hover
+        border 1px solid red
     
     .user-real-name
       color primaryColor
