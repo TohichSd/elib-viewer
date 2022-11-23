@@ -24,35 +24,13 @@ module.exports = {
         filename: '[name].bundle.js',
         clean: true
     },
-    optimization: {
-        runtimeChunk: 'single',
-        concatenateModules: true,
-        minimize: true,
-        splitChunks: {
-            maxSize: 244*1024,
-            chunks: 'all',
-            maxInitialRequests: Infinity,
-            minSize: 0,
-            filename: 'vendor~[name].bundle.js',
-            cacheGroups: {
-                default: {
-                    minChunks: 2,
-                    reuseExistingChunk: true,
-                },
-                reactVendor: {
-                    test: /[\\/]node_modules[\\/](react|react-dom|react-router-dom)[\\/]/,
-                    chunks: 'all',
-                }
-            }
-        }
-    },
     plugins: [
         new NodePolyfillPlugin(),
         // new BundleAnalyzerPlugin(),
         new HtmlWebpackPlugin({
             title: 'ELib Viewer',
             filename: path.resolve(__dirname, 'dist', 'index.html'),
-            // template: path.resolve(__dirname, 'src/static/views/index.ejs')
+            template: path.resolve(__dirname, 'src/static/views/index.ejs')
         }),
         new CopyWebpackPlugin({
             patterns: [

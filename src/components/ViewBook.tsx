@@ -22,7 +22,7 @@ interface IProps {
 interface IState {
     page: number
     inputPage: string
-    imageBlob: string
+    imageBlob?: string
     loaded: boolean
     imageWidth: number
     pagesCount: number
@@ -36,11 +36,10 @@ export default class ViewBook extends React.Component<IProps, IState> {
         super(props)
         const defaultImageWidth = isMobile
             ? document.body.scrollWidth * 0.95
-            : document.body.scrollWidth * 0.5
+            : document.body.scrollWidth * 0.4
         this.state = {
             page: 0,
             inputPage: '1',
-            imageBlob: undefined,
             loaded: false,
             imageWidth: parseInt(cookies.get('image-width')) || defaultImageWidth,
             pagesCount: 0,
