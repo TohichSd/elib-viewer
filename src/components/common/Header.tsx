@@ -6,7 +6,7 @@ import LightModeSvg from '../../static/assets/light-mode-20px.svg'
 import DarkModeSvg from '../../static/assets/dark-mode-20px.svg'
 import PersonSvg from '../../static/assets/person-24px.svg'
 import LogoutSvg from '../../static/assets/logout-20px.svg'
-import SettingsSvg from '../../static/assets/settings-20px.svg'
+// import SettingsSvg from '../../static/assets/settings-20px.svg'
 
 const cookies = new Cookies()
 
@@ -71,9 +71,9 @@ export default class Header extends React.Component<IProps, IState> {
                             onClick={this.props.darkModeCallback}>{this.props.context.darkMode ?
                         <LightModeSvg /> : <DarkModeSvg />}
                     </button>
-                    <button className='settings button-secondary' title='Настройки'>
+                    {/*<button className='settings button-secondary' title='Настройки'>
                         <SettingsSvg />
-                    </button>
+                    </button>*/}
                     {this.props.context.loggedIn &&
                         <button className='button-secondary logout' onClick={this.props.logoutCallback}>
                             <LogoutSvg />

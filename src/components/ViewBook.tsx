@@ -12,6 +12,9 @@ import HelpSvg from '../static/assets/help-20px.svg'
 import { Notify, Report } from 'notiflix'
 import { BrowserView, isMobile } from 'react-device-detect'
 
+const helpMessage = 'Используйте стрелки на клавиатуре для переключения страниц, ' +
+    '+ и - для изменения масштаба и кнопку F для переключения полноэкранного режима.'
+
 const cookies = new Cookies()
 
 interface IProps {
@@ -70,7 +73,7 @@ export default class ViewBook extends React.Component<IProps, IState> {
             else if (e.key == 'Escape' || e.key == 'Esc') {
                 if (this.props.context.fullScreen)
                     this.toggleFullscreen()
-            } else if (e.key == 'f')
+            } else if (e.key == 'f' || e.key == 'а')
                 this.toggleFullscreen()
         })
     }
@@ -143,7 +146,7 @@ export default class ViewBook extends React.Component<IProps, IState> {
     }
 
     private showHelp() {
-        Report.info('Помощь', 'помощь', 'ОК', {
+        Report.info('Помощь', helpMessage, 'ОК', {
             backOverlay: false
         })
     }
@@ -210,6 +213,12 @@ export default class ViewBook extends React.Component<IProps, IState> {
                     {this.state.imageBlob &&
                         <div className='controls'>
                             <div>
+                                <BrowserView>
+                                    <button className='help button-secondary' onClick={this.showHelp}>
+                                        <HelpSvg />
+                                    </button>
+                                </BrowserView>
+
                                 <button className='arrow arrow-left button-secondary'
                                         onClick={this.previousPage}>
                                     <PreviousSvg />
