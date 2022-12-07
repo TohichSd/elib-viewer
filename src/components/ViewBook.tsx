@@ -8,7 +8,8 @@ import ZoomOutSvg from '../static/assets/zoom-out-20px.svg'
 import NextSvg from '../static/assets/next-20px.svg'
 import PreviousSvg from '../static/assets/previous-20px.svg'
 import FullscreenSvg from '../static/assets/fullscreen-20px.svg'
-import { Notify } from 'notiflix/build/notiflix-notify-aio'
+import HelpSvg from '../static/assets/help-20px.svg'
+import { Notify, Report } from 'notiflix'
 import { BrowserView, isMobile } from 'react-device-detect'
 
 const cookies = new Cookies()
@@ -55,6 +56,7 @@ export default class ViewBook extends React.Component<IProps, IState> {
         this.onKeyDown = this.onKeyDown.bind(this)
         this.cachePage = this.cachePage.bind(this)
         this.toggleFullscreen = this.toggleFullscreen.bind(this)
+        this.showHelp = this.showHelp.bind(this)
 
         document.addEventListener('keyup', e => {
             if (e.key == 'ArrowLeft' || e.key == 'Left')
@@ -65,17 +67,19 @@ export default class ViewBook extends React.Component<IProps, IState> {
                 this.zoomIn()
             else if (e.key == '-')
                 this.zoomOut()
-            else if (e.key == 'Escape' || e.key == 'Esc')
+            else if (e.key == 'Escape' || e.key == 'Esc') {
                 if (this.props.context.fullScreen)
                     this.toggleFullscreen()
+            } else if (e.key == 'f')
+                this.toggleFullscreen()
         })
     }
 
     // Кэшировать страницу если она ещё не кэширована
     private cachePage(page: number): void {
         if (!this.state.cachedPages[page]) {
-            this.state.cachedPages[page] = Library.getBookPage(this.props.bookID, page)
-                .then(URL.createObjectURL)
+            this.state.cachedPages[page] = Library.getBookPageBlob(this.props.bookID, page)
+                .then(blob => URL.createObjectURL(blob))
         }
     }
 
@@ -88,15 +92,15 @@ export default class ViewBook extends React.Component<IProps, IState> {
     }
 
     private zoomIn() {
-        if (this.state.imageWidth <= 1500) {
-            cookies.set('image-height', this.state.imageWidth + 100)
+        if (this.state.imageWidth <= document.body.scrollWidth * 0.95) {
+            cookies.set('image-width', this.state.imageWidth + 100)
             this.setState({ imageWidth: this.state.imageWidth + 100 })
         }
     }
 
     private zoomOut() {
-        if (this.state.imageWidth >= 800) {
-            cookies.set('image-height', this.state.imageWidth - 100)
+        if (this.state.imageWidth >= document.body.scrollWidth * 0.2) {
+            cookies.set('image-width', this.state.imageWidth - 100)
             this.setState({ imageWidth: this.state.imageWidth - 100 })
         }
     }
@@ -136,6 +140,12 @@ export default class ViewBook extends React.Component<IProps, IState> {
 
     private toggleFullscreen() {
         this.props.fullscreenCallback()
+    }
+
+    private showHelp() {
+        Report.info('Помощь', 'помощь', 'ОК', {
+            backOverlay: false
+        })
     }
 
     componentDidMount() {
@@ -204,18 +214,22 @@ export default class ViewBook extends React.Component<IProps, IState> {
                                         onClick={this.previousPage}>
                                     <PreviousSvg />
                                 </button>
+
                                 <button className='arrow arrow-right button-secondary'
                                         onClick={this.nextPage}>
                                     <NextSvg />
                                 </button>
+
                                 <BrowserView>
                                     <button className='size-minus button-secondary' onClick={this.zoomOut}>
                                         <ZoomOutSvg />
                                     </button>
+
                                     <button className='size-plus button-secondary' onClick={this.zoomIn}>
                                         <ZoomInSvg />
                                     </button>
                                 </BrowserView>
+
                                 <button className='fullscreen button-secondary'
                                         onClick={this.toggleFullscreen}>
                                     <FullscreenSvg />

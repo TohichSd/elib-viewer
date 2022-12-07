@@ -4,10 +4,10 @@ import { parse } from 'node-html-parser'
 
 import Cookies from 'universal-cookie'
 
-import './stylus/common.styl'
-import './stylus/search.styl'
-import './stylus/login.styl'
-import './stylus/view-page.styl'
+import './static/stylus/common.styl'
+import './static/stylus/search.styl'
+import './static/stylus/login.styl'
+import './static/stylus/view-page.styl'
 import 'react-notifications/lib/notifications.css'
 
 import Library from './helpers/Library'

@@ -1,6 +1,5 @@
 const path = require('path')
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
-// const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
@@ -26,7 +25,6 @@ module.exports = {
     },
     plugins: [
         new NodePolyfillPlugin(),
-        // new BundleAnalyzerPlugin(),
         new HtmlWebpackPlugin({
             title: 'ELib Viewer',
             filename: path.resolve(__dirname, 'dist', 'index.html'),

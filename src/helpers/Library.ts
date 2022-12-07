@@ -88,7 +88,7 @@ export default class Library {
         if (!response.ok) throw new LibraryError({ message: 'Cannot fetch page', code: response.status })
     }
 
-    public static async getBookPage(id: number, page: number): Promise<Blob> {
+    public static async getBookPageBlob(id: number, page: number): Promise<Blob> {
         const url = proxyUrl.href + `plugins/SecView/getDoc.php?id=${id}&page=${page}&type=small/fast`
         const bookPageResponse = await fetch(url, {
             method: 'GET',

@@ -1,4 +1,5 @@
 const { merge } = require('webpack-merge')
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 const common = require('./webpack.config.cjs')
 
 module.exports = merge(common, {
@@ -9,4 +10,7 @@ module.exports = merge(common, {
         watchFiles: ['public/**/*', './src/style/**/*'],
         static: './src/dist'
     },
+    plugins: [
+        new BundleAnalyzerPlugin()
+    ]
 })
